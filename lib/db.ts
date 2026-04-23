@@ -141,7 +141,7 @@ export async function getBirdById(id: number): Promise<Bird | null> {
 export async function updateBird(id: number, data: { discovered?: 0 | 1; field_notes?: string }) {
   await ensureInit();
   const fields: string[] = [];
-  const args: unknown[] = [];
+  const args: (string | number)[] = [];
 
   if (data.discovered !== undefined) { fields.push('discovered = ?'); args.push(data.discovered); }
   if (data.field_notes !== undefined) { fields.push('field_notes = ?'); args.push(data.field_notes); }
