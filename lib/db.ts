@@ -160,7 +160,7 @@ export async function addPhoto(birdId: number, url: string, caption: string): Pr
   });
   const row = await client.execute({
     sql: 'SELECT * FROM bird_photos WHERE id = ?',
-    args: [result.lastInsertRowid],
+    args: [Number(result.lastInsertRowid)],
   });
   return rowToPhoto(row.rows[0]);
 }
