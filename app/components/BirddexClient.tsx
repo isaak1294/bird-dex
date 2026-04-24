@@ -17,7 +17,9 @@ function padId(id: number) {
 }
 
 function BirdCard({ bird }: { bird: Bird }) {
-  const firstPhoto = bird.photos[0];
+  const coverPhoto = bird.cover_photo_id
+    ? (bird.photos.find(p => p.id === bird.cover_photo_id) ?? bird.photos[0])
+    : bird.photos[0];
   const discovered = bird.discovered === 1;
 
   return (
@@ -42,10 +44,10 @@ function BirdCard({ bird }: { bird: Bird }) {
         <div className={`flex-1 flex items-center justify-center mx-3 mb-2 rounded-lg overflow-hidden relative ${
           discovered ? 'bg-[#d8f2e6]' : 'bg-[#dce8f4] scanlines'
         }`}>
-          {firstPhoto ? (
+          {coverPhoto ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src={firstPhoto.url}
+              src={coverPhoto.url}
               alt={bird.name}
               className="w-full h-full object-cover"
             />
@@ -82,18 +84,18 @@ function BirdIcon({ discovered }: { discovered: boolean }) {
 export default function BirddexClient({ initialBirds, categories, totalDiscovered }: Props) {
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState<string>('All');
+  const [discoveredOnly, setDiscoveredOnly] = useState(false);
 
   const filteredBirds = useMemo(() => {
     let birds = initialBirds;
-    if (activeCategory !== 'All') {
-      birds = birds.filter(b => b.category === activeCategory);
-    }
+    if (discoveredOnly) birds = birds.filter(b => b.discovered === 1);
+    if (activeCategory !== 'All') birds = birds.filter(b => b.category === activeCategory);
     if (search.trim()) {
       const q = search.toLowerCase();
       birds = birds.filter(b => b.name.toLowerCase().includes(q));
     }
     return birds;
-  }, [initialBirds, activeCategory, search]);
+  }, [initialBirds, activeCategory, search, discoveredOnly]);
 
   const total = initialBirds.length;
 
@@ -209,11 +211,24 @@ export default function BirddexClient({ initialBirds, categories, totalDiscovere
                 </button>
               )}
             </div>
-            <p className="text-[11px] mt-1.5 ml-1" style={{ color: 'var(--text-dim)' }}>
-              {filteredBirds.length} bird{filteredBirds.length !== 1 ? 's' : ''}
-              {activeCategory !== 'All' ? ` in ${activeCategory}` : ''}
-              {search ? ` matching "${search}"` : ''}
-            </p>
+            <div className="flex items-center justify-between mt-1.5 ml-1">
+              <p className="text-[11px]" style={{ color: 'var(--text-dim)' }}>
+                {filteredBirds.length} bird{filteredBirds.length !== 1 ? 's' : ''}
+                {activeCategory !== 'All' ? ` in ${activeCategory}` : ''}
+                {search ? ` matching "${search}"` : ''}
+              </p>
+              <button
+                onClick={() => setDiscoveredOnly(v => !v)}
+                className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full font-medium transition-all"
+                style={discoveredOnly
+                  ? { background: '#edfaf3', color: '#16a34a', border: '1px solid #86efac' }
+                  : { background: 'var(--card-border)', color: 'var(--text-muted)', border: '1px solid transparent' }
+                }
+              >
+                <span>{discoveredOnly ? '★' : '☆'}</span>
+                <span>Seen only</span>
+              </button>
+            </div>
           </div>
 
           {/* Bird grid */}

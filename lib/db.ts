@@ -40,6 +40,12 @@ async function initSchema() {
       FOREIGN KEY (bird_id) REFERENCES birds(id) ON DELETE CASCADE
     )
   `);
+  // Migration: add cover_photo_id if it doesn't exist yet
+  try {
+    await client.execute('ALTER TABLE birds ADD COLUMN cover_photo_id INTEGER');
+  } catch {
+    // Column already exists — safe to ignore
+  }
 }
 
 function parseCSVLine(line: string): [string, string] | null {
@@ -92,6 +98,7 @@ export type Bird = {
   category: string;
   discovered: 0 | 1;
   field_notes: string;
+  cover_photo_id: number | null;
   updated_at: string;
   photos: Photo[];
 };
@@ -138,13 +145,17 @@ export async function getBirdById(id: number): Promise<Bird | null> {
   };
 }
 
-export async function updateBird(id: number, data: { discovered?: 0 | 1; field_notes?: string }) {
+export async function updateBird(
+  id: number,
+  data: { discovered?: 0 | 1; field_notes?: string; cover_photo_id?: number | null }
+) {
   await ensureInit();
   const fields: string[] = [];
-  const args: (string | number)[] = [];
+  const args: (string | number | null)[] = [];
 
   if (data.discovered !== undefined) { fields.push('discovered = ?'); args.push(data.discovered); }
   if (data.field_notes !== undefined) { fields.push('field_notes = ?'); args.push(data.field_notes); }
+  if ('cover_photo_id' in data) { fields.push('cover_photo_id = ?'); args.push(data.cover_photo_id ?? null); }
   if (!fields.length) return;
 
   fields.push('updated_at = CURRENT_TIMESTAMP');
@@ -170,7 +181,10 @@ export async function deletePhoto(photoId: number): Promise<Photo | null> {
   const res = await client.execute({ sql: 'SELECT * FROM bird_photos WHERE id = ?', args: [photoId] });
   if (!res.rows[0]) return null;
   const photo = rowToPhoto(res.rows[0]);
-  await client.execute({ sql: 'DELETE FROM bird_photos WHERE id = ?', args: [photoId] });
+  await client.batch([
+    { sql: 'UPDATE birds SET cover_photo_id = NULL WHERE cover_photo_id = ?', args: [photoId] },
+    { sql: 'DELETE FROM bird_photos WHERE id = ?', args: [photoId] },
+  ], 'write');
   return photo;
 }
 
@@ -194,6 +208,7 @@ function rowToBird(row: any): Omit<Bird, 'photos'> {
     category: String(row.category),
     discovered: Number(row.discovered) as 0 | 1,
     field_notes: String(row.field_notes ?? ''),
+    cover_photo_id: row.cover_photo_id != null ? Number(row.cover_photo_id) : null,
     updated_at: String(row.updated_at),
   };
 }

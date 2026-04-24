@@ -29,6 +29,7 @@ export default function BirdDetail({ bird: initialBird, prevId, nextId }: Props)
   const photos = bird.photos;
   const safeIndex = Math.min(activeIndex, Math.max(0, photos.length - 1));
   const activePhoto = photos[safeIndex] ?? null;
+  const coverPhotoId = bird.cover_photo_id ?? photos[0]?.id ?? null;
 
   function goPrev() { setActiveIndex(i => Math.max(0, i - 1)); }
   function goNext() { setActiveIndex(i => Math.min(photos.length - 1, i + 1)); }
@@ -91,6 +92,16 @@ export default function BirdDetail({ bird: initialBird, prevId, nextId }: Props)
       startTransition(() => router.refresh());
     }
     setUploading(false);
+  }
+
+  async function setCover(photoId: number) {
+    const res = await fetch(`/api/birds/${bird.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cover_photo_id: photoId }),
+    });
+    setBird(await res.json());
+    startTransition(() => router.refresh());
   }
 
   async function deleteActivePhoto() {
@@ -218,18 +229,31 @@ export default function BirdDetail({ bird: initialBird, prevId, nextId }: Props)
             {/* Thumbnail strip */}
             {photos.length > 1 && (
               <div className="flex gap-2 flex-wrap">
-                {photos.map((photo, i) => (
-                  <button
-                    key={photo.id}
-                    onClick={() => setActiveIndex(i)}
-                    className={`rounded-lg overflow-hidden w-14 h-14 border-2 transition-all shrink-0 ${
-                      i === safeIndex ? 'border-green-400 opacity-100' : 'border-[#b8d0e4] opacity-50 hover:opacity-80'
-                    }`}
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={photo.url} alt={photo.caption || bird.name} className="w-full h-full object-cover" />
-                  </button>
-                ))}
+                {photos.map((photo, i) => {
+                  const isCover = photo.id === coverPhotoId;
+                  const isActive = i === safeIndex;
+                  return (
+                    <div key={photo.id} className="flex flex-col items-center gap-1">
+                      <button
+                        onClick={() => setActiveIndex(i)}
+                        className={`rounded-lg overflow-hidden w-14 h-14 border-2 transition-all shrink-0 ${
+                          isActive ? 'border-green-400 opacity-100' : 'border-[#b8d0e4] opacity-50 hover:opacity-80'
+                        }`}
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={photo.url} alt={photo.caption || bird.name} className="w-full h-full object-cover" />
+                      </button>
+                      <button
+                        onClick={() => setCover(photo.id)}
+                        title={isCover ? 'Cover photo' : 'Set as cover'}
+                        className="text-[11px] transition-colors leading-none"
+                        style={{ color: isCover ? '#ca8a04' : 'var(--text-dim)' }}
+                      >
+                        {isCover ? '★' : '☆'}
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>

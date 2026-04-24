@@ -15,7 +15,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const body = await req.json() as { discovered?: 0 | 1; field_notes?: string };
+  const body = await req.json() as { discovered?: 0 | 1; field_notes?: string; cover_photo_id?: number | null };
   await updateBird(Number(id), body);
   const bird = await getBirdById(Number(id));
   return Response.json(bird);
