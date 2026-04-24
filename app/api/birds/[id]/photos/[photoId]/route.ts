@@ -9,8 +9,8 @@ export async function DELETE(
   const photo = await deletePhoto(Number(photoId));
   if (!photo) return Response.json({ error: 'Not found' }, { status: 404 });
 
-  // Extract the GCS object path from the full URL
-  const gcsPath = photo.url.replace(`https://storage.googleapis.com/${process.env.GCS_BUCKET}/`, '');
+  // photo.url is /api/photos/{gcsPath} — strip the prefix to get the GCS object path
+  const gcsPath = photo.url.replace('/api/photos/', '');
   await deleteFromGCS(gcsPath);
 
   return Response.json({ ok: true });

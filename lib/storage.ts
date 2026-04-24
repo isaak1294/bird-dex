@@ -1,31 +1,29 @@
 import { Storage } from '@google-cloud/storage';
 
-const storage = new Storage({
-  credentials: {
-    client_email: process.env.GCS_CLIENT_EMAIL,
-    // dotenv interprets \n in double-quoted values; replace in case it doesn't
-    private_key: (process.env.GCS_PRIVATE_KEY ?? '').replace(/\\n/g, '\n'),
-  },
-});
-
+const creds = JSON.parse(Buffer.from(process.env.GCS_CREDENTIALS!, 'base64').toString('utf-8'));
+const storage = new Storage({ credentials: creds });
 const bucket = storage.bucket(process.env.GCS_BUCKET!);
 
-export function publicUrl(filename: string): string {
-  return `https://storage.googleapis.com/${process.env.GCS_BUCKET}/${filename}`;
+// Photos are served through /api/photos/[...path] — bucket stays private.
+export function proxyUrl(gcsPath: string): string {
+  return `/api/photos/${gcsPath}`;
 }
 
 export async function uploadToGCS(
-  filename: string,
+  gcsPath: string,
   buffer: Buffer,
   mimeType: string
 ): Promise<string> {
-  const file = bucket.file(filename);
-  await file.save(buffer, {
-    metadata: { contentType: mimeType },
-  });
-  return publicUrl(filename);
+  await bucket.file(gcsPath).save(buffer, { metadata: { contentType: mimeType } });
+  return proxyUrl(gcsPath);
 }
 
-export async function deleteFromGCS(filename: string): Promise<void> {
-  await bucket.file(filename).delete({ ignoreNotFound: true });
+export async function downloadFromGCS(gcsPath: string): Promise<{ buffer: Buffer; contentType: string }> {
+  const file = bucket.file(gcsPath);
+  const [[buffer], [metadata]] = await Promise.all([file.download(), file.getMetadata()]);
+  return { buffer, contentType: (metadata.contentType as string) || 'image/jpeg' };
+}
+
+export async function deleteFromGCS(gcsPath: string): Promise<void> {
+  await bucket.file(gcsPath).delete({ ignoreNotFound: true });
 }
