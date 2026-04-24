@@ -40,12 +40,10 @@ async function initSchema() {
       FOREIGN KEY (bird_id) REFERENCES birds(id) ON DELETE CASCADE
     )
   `);
-  // Migration: add cover_photo_id if it doesn't exist yet
-  try {
-    await client.execute('ALTER TABLE birds ADD COLUMN cover_photo_id INTEGER');
-  } catch {
-    // Column already exists — safe to ignore
-  }
+  // Migrations — each wrapped individually so one failure doesn't block others
+  try { await client.execute('ALTER TABLE birds ADD COLUMN cover_photo_id INTEGER'); } catch { /* exists */ }
+  try { await client.execute('ALTER TABLE birds ADD COLUMN frequency REAL'); } catch { /* exists */ }
+  try { await client.execute('ALTER TABLE birds ADD COLUMN is_target INTEGER NOT NULL DEFAULT 0'); } catch { /* exists */ }
 }
 
 function parseCSVLine(line: string): [string, string] | null {
@@ -99,6 +97,8 @@ export type Bird = {
   discovered: 0 | 1;
   field_notes: string;
   cover_photo_id: number | null;
+  frequency: number | null;
+  is_target: 0 | 1;
   updated_at: string;
   photos: Photo[];
 };
@@ -209,6 +209,8 @@ function rowToBird(row: any): Omit<Bird, 'photos'> {
     discovered: Number(row.discovered) as 0 | 1,
     field_notes: String(row.field_notes ?? ''),
     cover_photo_id: row.cover_photo_id != null ? Number(row.cover_photo_id) : null,
+    frequency: row.frequency != null ? Number(row.frequency) : null,
+    is_target: (Number(row.is_target) as 0 | 1) ?? 0,
     updated_at: String(row.updated_at),
   };
 }

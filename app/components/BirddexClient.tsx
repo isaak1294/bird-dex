@@ -4,13 +4,26 @@ import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import type { Bird } from '@/lib/db';
 
-type Category = { category: string; total: number; discovered: number };
+type Rarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
 
-type Props = {
-  initialBirds: Bird[];
-  categories: Category[];
-  totalDiscovered: number;
+const RARITY: Record<Rarity, { label: string; bg: string; color: string }> = {
+  common: { label: 'Common', bg: '#16a34a', color: 'white' },
+  uncommon: { label: 'Uncommon', bg: '#ca8a04', color: 'white' },
+  rare: { label: 'Rare', bg: '#2563eb', color: 'white' },
+  epic: { label: 'Epic', bg: '#7c3aed', color: 'white' },
+  legendary: { label: 'Legendary', bg: '#92400e', color: '#fef3c7' },
 };
+
+function getRarity(frequency: number | null): Rarity | null {
+  if (frequency === null) return null;
+  if (frequency > 10) return 'common';
+  if (frequency > 3) return 'uncommon';
+  if (frequency > 1) return 'rare';
+  if (frequency > 0.1) return 'epic';
+  return 'legendary';
+}
+
+type Props = { initialBirds: Bird[] };
 
 function padId(id: number) {
   return String(id).padStart(3, '0');
@@ -21,15 +34,16 @@ function BirdCard({ bird }: { bird: Bird }) {
     ? (bird.photos.find(p => p.id === bird.cover_photo_id) ?? bird.photos[0])
     : bird.photos[0];
   const discovered = bird.discovered === 1;
+  const rarity = getRarity(bird.frequency);
+  const rarityStyle = rarity ? RARITY[rarity] : null;
 
   return (
     <Link href={`/bird/${bird.id}`}>
       <div
-        className={`bird-card rounded-xl border cursor-pointer overflow-hidden flex flex-col ${
-          discovered
+        className={`bird-card rounded-xl border cursor-pointer overflow-hidden flex flex-col ${discovered
             ? 'border-green-300 bg-[#edfaf3]'
             : 'border-[#b8d0e4] bg-[#f4f9fd]'
-        }`}
+          }`}
         style={{ height: 200 }}
       >
         {/* Number bar */}
@@ -41,9 +55,8 @@ function BirdCard({ bird }: { bird: Bird }) {
         </div>
 
         {/* Image area */}
-        <div className={`flex-1 flex items-center justify-center mx-3 mb-2 rounded-lg overflow-hidden relative ${
-          discovered ? 'bg-[#d8f2e6]' : 'bg-[#dce8f4] scanlines'
-        }`}>
+        <div className={`flex-1 flex items-center justify-center mx-3 mb-2 rounded-lg overflow-hidden relative ${discovered ? 'bg-[#d8f2e6]' : 'bg-[#dce8f4] scanlines'
+          }`}>
           {coverPhoto ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -54,13 +67,22 @@ function BirdCard({ bird }: { bird: Bird }) {
           ) : (
             <BirdIcon discovered={discovered} />
           )}
+
+          {/* Rarity badge */}
+          {rarityStyle && (
+            <span
+              className="absolute bottom-1.5 left-1.5 text-[8px] font-bold px-1.5 py-0.5 rounded leading-none"
+              style={{ background: rarityStyle.bg, color: rarityStyle.color }}
+            >
+              {rarityStyle.label}
+            </span>
+          )}
         </div>
 
         {/* Name */}
         <div className="px-3 pb-3">
-          <p className={`text-xs font-semibold leading-tight truncate ${
-            discovered ? 'text-green-800' : 'text-[#6a8898]'
-          }`}>
+          <p className={`text-xs font-semibold leading-tight truncate ${discovered ? 'text-green-800' : 'text-[#6a8898]'
+            }`}>
             {bird.name}
           </p>
         </div>
@@ -81,23 +103,61 @@ function BirdIcon({ discovered }: { discovered: boolean }) {
   );
 }
 
-export default function BirddexClient({ initialBirds, categories, totalDiscovered }: Props) {
+export default function BirddexClient({ initialBirds }: Props) {
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState<string>('All');
   const [discoveredOnly, setDiscoveredOnly] = useState(false);
+  const [targetOnly, setTargetOnly] = useState(true);
+
+  const baseBirds = useMemo(
+    () => (targetOnly ? initialBirds.filter(b => b.is_target === 1) : initialBirds),
+    [initialBirds, targetOnly]
+  );
+
+  const categories = useMemo(() => {
+    const map = new Map<string, { total: number; discovered: number }>();
+    for (const b of baseBirds) {
+      const e = map.get(b.category) ?? { total: 0, discovered: 0 };
+      e.total++;
+      if (b.discovered) e.discovered++;
+      map.set(b.category, e);
+    }
+    return Array.from(map.entries())
+      .map(([category, counts]) => ({ category, ...counts }))
+      .sort((a, b) => a.category.localeCompare(b.category));
+  }, [baseBirds]);
+
+  const totalDiscovered = useMemo(() => baseBirds.filter(b => b.discovered).length, [baseBirds]);
 
   const filteredBirds = useMemo(() => {
-    let birds = initialBirds;
+    let birds = baseBirds;
     if (discoveredOnly) birds = birds.filter(b => b.discovered === 1);
     if (activeCategory !== 'All') birds = birds.filter(b => b.category === activeCategory);
     if (search.trim()) {
       const q = search.toLowerCase();
       birds = birds.filter(b => b.name.toLowerCase().includes(q));
     }
-    return birds;
-  }, [initialBirds, activeCategory, search, discoveredOnly]);
+    const RARITY_RANK: Record<string, number> = {
+      legendary: 0, epic: 1, rare: 2, uncommon: 3, common: 4,
+    };
+    return [...birds].sort((a, b) => {
+      const ra = getRarity(a.frequency);
+      const rb = getRarity(b.frequency);
+      const rankA = ra ? RARITY_RANK[ra] : -1;
+      const rankB = rb ? RARITY_RANK[rb] : -1;
+      if (rankA !== rankB) return rankB - rankA;
+      const catCmp = a.category.localeCompare(b.category);
+      if (catCmp !== 0) return catCmp;
+      return a.name.localeCompare(b.name);
+    });
+  }, [baseBirds, activeCategory, search, discoveredOnly]);
 
-  const total = initialBirds.length;
+  const total = baseBirds.length;
+
+  function handleTargetToggle() {
+    setTargetOnly(v => !v);
+    setActiveCategory('All');
+  }
 
   return (
     <div className="flex flex-col h-screen overflow-hidden" style={{ background: 'var(--bg)' }}>
@@ -140,11 +200,10 @@ export default function BirddexClient({ initialBirds, categories, totalDiscovere
 
             <button
               onClick={() => setActiveCategory('All')}
-              className={`w-full text-left px-3 py-2 rounded-lg mb-1 text-sm flex items-center justify-between transition-colors ${
-                activeCategory === 'All'
+              className={`w-full text-left px-3 py-2 rounded-lg mb-1 text-sm flex items-center justify-between transition-colors ${activeCategory === 'All'
                   ? 'text-white font-semibold'
                   : 'hover:bg-white/40'
-              }`}
+                }`}
               style={
                 activeCategory === 'All'
                   ? { background: 'var(--red)', color: 'white' }
@@ -161,9 +220,8 @@ export default function BirddexClient({ initialBirds, categories, totalDiscovere
                 <button
                   key={cat.category}
                   onClick={() => setActiveCategory(cat.category)}
-                  className={`w-full text-left px-3 py-2 rounded-lg mb-0.5 text-xs flex items-center justify-between transition-colors ${
-                    active ? 'text-white font-semibold' : 'hover:bg-white/40'
-                  }`}
+                  className={`w-full text-left px-3 py-2 rounded-lg mb-0.5 text-xs flex items-center justify-between transition-colors ${active ? 'text-white font-semibold' : 'hover:bg-white/40'
+                    }`}
                   style={
                     active
                       ? { background: 'var(--red-dark)', color: 'white' }
@@ -217,17 +275,30 @@ export default function BirddexClient({ initialBirds, categories, totalDiscovere
                 {activeCategory !== 'All' ? ` in ${activeCategory}` : ''}
                 {search ? ` matching "${search}"` : ''}
               </p>
-              <button
-                onClick={() => setDiscoveredOnly(v => !v)}
-                className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full font-medium transition-all"
-                style={discoveredOnly
-                  ? { background: '#edfaf3', color: '#16a34a', border: '1px solid #86efac' }
-                  : { background: 'var(--card-border)', color: 'var(--text-muted)', border: '1px solid transparent' }
-                }
-              >
-                <span>{discoveredOnly ? '★' : '☆'}</span>
-                <span>Seen only</span>
-              </button>
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => setDiscoveredOnly(v => !v)}
+                  className="flex items-center gap-1 text-xs px-2.5 py-1 rounded-full font-medium transition-all"
+                  style={discoveredOnly
+                    ? { background: '#edfaf3', color: '#16a34a', border: '1px solid #86efac' }
+                    : { background: 'var(--card-border)', color: 'var(--text-muted)', border: '1px solid transparent' }
+                  }
+                >
+                  <span>{discoveredOnly ? '★' : '☆'}</span>
+                  <span>Seen</span>
+                </button>
+                <button
+                  onClick={handleTargetToggle}
+                  className="flex items-center gap-1 text-xs px-2.5 py-1 rounded-full font-medium transition-all"
+                  style={targetOnly
+                    ? { background: '#eff6ff', color: '#1d4ed8', border: '1px solid #93c5fd' }
+                    : { background: 'var(--card-border)', color: 'var(--text-muted)', border: '1px solid transparent' }
+                  }
+                >
+                  <span>{targetOnly ? '◉' : '○'}</span>
+                  <span>{targetOnly ? 'Target' : 'All'}</span>
+                </button>
+              </div>
             </div>
           </div>
 
