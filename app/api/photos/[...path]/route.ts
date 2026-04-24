@@ -9,7 +9,7 @@ export async function GET(
 
   try {
     const { buffer, contentType } = await downloadFromGCS(gcsPath);
-    return new Response(buffer, {
+    return new Response(new Uint8Array(buffer), {
       headers: {
         'Content-Type': contentType,
         'Cache-Control': 'public, max-age=31536000, immutable',
