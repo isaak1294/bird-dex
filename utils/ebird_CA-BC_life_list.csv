@@ -1,0 +1,61 @@
+Row #,Taxon Order,Category,Common Name,Scientific Name,Count,Location,S/P,Date,LocID,SubID,Exotic,Countable
+1,33310,species,Lincoln's Sparrow,Melospiza lincolnii,1,Blenkinsop--Galey Farms trail,CA-BC,17 Apr 2026,L1057614,S323034074,,1
+2,24064,species,Tree Swallow,Tachycineta bicolor,1,Blenkinsop--Galey Farms trail,CA-BC,17 Apr 2026,L1057614,S323034074,,1
+3,12062,species,Merlin,Falco columbarius,1,Blenkinsop--Galey Farms trail,CA-BC,17 Apr 2026,L1057614,S323034074,,1
+4,6855,species,Pied-billed Grebe,Podilymbus podiceps,1,Blenkinsop--Galey Farms trail,CA-BC,17 Apr 2026,L1057614,S323034074,,1
+5,33779,species,Red-winged Blackbird,Agelaius phoeniceus,1,"University of Victoria, Oak Bay CA-BC (48.4616,-123.3103)",CA-BC,16 Apr 2026,L59497780,S322650225,,1
+6,7832,species,Osprey,Pandion haliaetus,1,University of Victoria--Community Garden,CA-BC,16 Apr 2026,L27624951,S322543858,,1
+7,7391,species,Pelagic Cormorant,Urile pelagicus,1,Oak Bay--Cattle Point,CA-BC,13 Apr 2026,L348477,S321363744,,1
+8,32617,species,American Goldfinch,Spinus tristis,1,University of Victoria - Finnerty Gardens,CA-BC,12 Apr 2026,L8922473,S320957141,,1
+9,33196,species,Golden-crowned Sparrow,Zonotrichia atricapilla,1,University of Victoria,CA-BC,12 Apr 2026,L345539,S320875062,,1
+10,10306,species,Belted Kingfisher,Megaceryle alcyon,2,Victoria--The Gorge,CA-BC,10 Apr 2026,L808804,S319728331,,1
+11,762,species,Common Merganser,Mergus merganser,2,Victoria--The Gorge,CA-BC,10 Apr 2026,L808804,S319728331,,1
+12,31534,species,House Sparrow,Passer domesticus,1,"Victoria--Selkirk Waterfront, Gorge Waterway",CA-BC,08 Apr 2026,L363609,S318935572,N,1
+13,27813,species,European Starling,Sturnus vulgaris,3,"Victoria--Selkirk Waterfront, Gorge Waterway",CA-BC,08 Apr 2026,L363609,S318935572,N,1
+14,27329,species,Marsh Wren,Cistothorus palustris,1,"Victoria--Selkirk Waterfront, Gorge Waterway",CA-BC,08 Apr 2026,L363609,S318935572,,1
+15,5827,species,Killdeer,Charadrius vociferus,1,"Victoria--Selkirk Waterfront, Gorge Waterway",CA-BC,08 Apr 2026,L363609,S318935572,,1
+16,1853,species,Rock Pigeon,Columba livia,2,"Victoria--Selkirk Waterfront, Gorge Waterway",CA-BC,08 Apr 2026,L363609,S318935572,N,1
+17,754,species,Hooded Merganser,Lophodytes cucullatus,1,"Victoria--Selkirk Waterfront, Gorge Waterway",CA-BC,08 Apr 2026,L363609,S318935572,,1
+18,512,species,Eurasian Wigeon,Mareca penelope,1,Beacon Hill Park,CA-BC,08 Apr 2026,L200516,S318906947,,1
+19,24074,species,Violet-green Swallow,Tachycineta thalassina,10,Thetis Lake Regional Park,CA-BC,08 Apr 2026,L349385,S318868347,,1
+20,4826,species,Rufous Hummingbird,Selasphorus rufus,1,Thetis Lake Regional Park,CA-BC,08 Apr 2026,L349385,S318868347,,1
+21,32990,species,Chipping Sparrow,Spizella passerina,1,University of Victoria,CA-BC,07 Apr 2026,L345539,S318400225,,1
+22,21274,species,Steller's Jay,Cyanocitta stelleri,1,"Goldstream Provincial Park, Langford CA-BC 48.46331, -123.56937",CA-BC,06 Apr 2026,L62139395,S318351987,,1
+23,11130,species,Red-breasted Sapsucker,Sphyrapicus ruber,1,"Goldstream Provincial Park, Langford CA-BC 48.46331, -123.56937",CA-BC,06 Apr 2026,L62139395,S318351987,,1
+24,34206,species,Townsend's Warbler,Setophaga townsendi,1,Beacon Hill Park,CA-BC,04 Apr 2026,L200516,S318394224,,1
+25,7753,species,Great Blue Heron,Ardea herodias,4,Beacon Hill Park,CA-BC,04 Apr 2026,L200516,S318394224,,1
+27,517,species,American Wigeon,Mareca americana,2,Beacon Hill Park,CA-BC,04 Apr 2026,L200516,S318394224,,1
+28,342,species,Canada Goose,Branta canadensis,1,Beacon Hill Park,CA-BC,04 Apr 2026,L200516,S318394224,,1
+29,34159,species,Yellow-rumped Warbler,Setophaga coronata,1,University of Victoria,CA-BC,03 Apr 2026,L345539,S316403377,,1
+30,33973,species,Orange-crowned Warbler,Leiothlypis celata,1,University of Victoria,CA-BC,03 Apr 2026,L345539,S316403377,,1
+31,19204,species,Hutton's Vireo,Vireo huttoni,1,University of Victoria,CA-BC,03 Apr 2026,L345539,S316403377,,1
+32,11400,species,Downy Woodpecker,Dryobates pubescens,1,University of Victoria,CA-BC,03 Apr 2026,L345539,S316403377,,1
+33,8278,species,Cooper's Hawk,Astur cooperii,1,University of Victoria,CA-BC,03 Apr 2026,L345539,S316403377,,1
+34,7815,species,Turkey Vulture,Cathartes aura,1,University of Victoria,CA-BC,03 Apr 2026,L345539,S316403377,,1
+35,33187,species,White-crowned Sparrow,Zonotrichia leucophrys,1,University of Victoria,CA-BC,01 Apr 2026,L345539,S315645044,,1
+36,33099,species,Fox Sparrow,Passerella iliaca,1,"University of Victoria, Oak Bay CA-BC (48.4616,-123.3103)",CA-BC,12 Mar 2026,L59497780,S309795491,,1
+37,26848,species,Golden-crowned Kinglet,Regulus satrapa,1,"University of Victoria, Oak Bay CA-BC (48.4616,-123.3103)",CA-BC,11 Mar 2026,L59497780,S308302255,,1
+38,21624,species,Common Raven,Corvus corax,1,"University of Victoria, Oak Bay CA-BC (48.4616,-123.3103)",CA-BC,11 Mar 2026,L59497780,S308302255,,1
+39,9219,species,Barred Owl,Strix varia,1,"University of Victoria, Oak Bay CA-BC (48.4616,-123.3103)",CA-BC,11 Mar 2026,L59497780,S308302255,,1
+40,32324,species,Purple Finch,Haemorhous purpureus,1,"University of Victoria, Oak Bay CA-BC (48.4616,-123.3103)",CA-BC,10 Mar 2026,L59497780,S307995834,,1
+41,28249,species,Varied Thrush,Ixoreus naevius,1,"University of Victoria, Oak Bay CA-BC (48.4616,-123.3103)",CA-BC,10 Mar 2026,L59497780,S307995834,,1
+42,27026,species,Brown Creeper,Certhia americana,3,"University of Victoria, Oak Bay CA-BC (48.4616,-123.3103)",CA-BC,10 Mar 2026,L59497780,S307995834,,1
+43,26844,species,Ruby-crowned Kinglet,Corthylio calendula,2,"University of Victoria, Oak Bay CA-BC (48.4616,-123.3103)",CA-BC,10 Mar 2026,L59497780,S307995834,,1
+44,25253,species,Bushtit,Psaltriparus minimus,2,"University of Victoria, Oak Bay CA-BC (48.4616,-123.3103)",CA-BC,10 Mar 2026,L59497780,S307995834,,1
+45,11900,species,Northern Flicker,Colaptes auratus,1,"University of Victoria, Oak Bay CA-BC (48.4616,-123.3103)",CA-BC,10 Mar 2026,L59497780,S307995834,,1
+46,11427,species,Hairy Woodpecker,Leuconotopicus villosus,1,"University of Victoria, Oak Bay CA-BC (48.4616,-123.3103)",CA-BC,10 Mar 2026,L59497780,S307995834,,1
+47,6596,species,Glaucous-winged Gull,Larus glaucescens,2,"University of Victoria, Oak Bay CA-BC (48.4616,-123.3103)",CA-BC,10 Mar 2026,L59497780,S307995834,,1
+48,33386,species,Spotted Towhee,Pipilo maculatus,1,"University of Victoria, Oak Bay CA-BC (48.4616,-123.3103)",CA-BC,08 Mar 2026,L59497780,S307329678,,1
+49,33277,species,Song Sparrow,Melospiza melodia,3,"University of Victoria, Oak Bay CA-BC (48.4616,-123.3103)",CA-BC,08 Mar 2026,L59497780,S307329678,,1
+50,33124,species,Dark-eyed Junco,Junco hyemalis,7,"University of Victoria, Oak Bay CA-BC (48.4616,-123.3103)",CA-BC,08 Mar 2026,L59497780,S307329678,,1
+51,32310,species,House Finch,Haemorhous mexicanus,1,"University of Victoria, Oak Bay CA-BC (48.4616,-123.3103)",CA-BC,08 Mar 2026,L59497780,S307329678,,1
+52,28633,species,American Robin,Turdus migratorius,2,"University of Victoria, Oak Bay CA-BC (48.4616,-123.3103)",CA-BC,08 Mar 2026,L59497780,S307329678,,1
+53,27362,species,Bewick's Wren,Thryomanes bewickii,1,"University of Victoria, Oak Bay CA-BC (48.4616,-123.3103)",CA-BC,08 Mar 2026,L59497780,S307329678,,1
+54,27288,species,Pacific Wren,Troglodytes pacificus,1,"University of Victoria, Oak Bay CA-BC (48.4616,-123.3103)",CA-BC,08 Mar 2026,L59497780,S307329678,,1
+55,26937,species,Red-breasted Nuthatch,Sitta canadensis,1,"University of Victoria, Oak Bay CA-BC (48.4616,-123.3103)",CA-BC,08 Mar 2026,L59497780,S307329678,,1
+56,22094,species,Chestnut-backed Chickadee,Poecile rufescens,3,"University of Victoria, Oak Bay CA-BC (48.4616,-123.3103)",CA-BC,08 Mar 2026,L59497780,S307329678,,1
+57,21557,species,American Crow,Corvus brachyrhynchos,1,"University of Victoria, Oak Bay CA-BC (48.4616,-123.3103)",CA-BC,08 Mar 2026,L59497780,S307329678,,1
+58,8367,species,Bald Eagle,Haliaeetus leucocephalus,1,"University of Victoria, Oak Bay CA-BC (48.4616,-123.3103)",CA-BC,08 Mar 2026,L59497780,S307329678,,1
+59,4814,species,Anna's Hummingbird,Calypte anna,1,"University of Victoria, Oak Bay CA-BC (48.4616,-123.3103)",CA-BC,08 Mar 2026,L59497780,S307329678,,1
+60,545,species,Mallard,Anas platyrhynchos,7,"University of Victoria, Oak Bay CA-BC (48.4616,-123.3103)",CA-BC,08 Mar 2026,L59497780,S307329678,,1
+26,1573,species,Indian Peafowl,Pavo cristatus,10,Beacon Hill Park,CA-BC,04 Apr 2026,L200516,S318394224,X,0
