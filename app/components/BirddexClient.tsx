@@ -380,7 +380,7 @@ export default function BirddexClient({ initialBirds, username, region, allUsers
             </div>
             <div className="flex items-center justify-between mt-1.5 ml-1">
               <p className="text-[11px] truncate" style={{ color: 'var(--text-dim)' }}>
-                {filteredBirds.length} bird{filteredBirds.length !== 1 ? 's' : ''}
+                {filteredBirds.filter(b => b.discovered).length}/{filteredBirds.length} bird{filteredBirds.length !== 1 ? 's' : ''}
                 {activeCategory !== 'All' ? ` · ${activeCategory}` : ''}
                 {search ? ` · "${search}"` : ''}
               </p>
