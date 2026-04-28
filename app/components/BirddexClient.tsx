@@ -304,6 +304,14 @@ export default function BirddexClient({ initialBirds, username, region, allUsers
             DISCOVERED
           </div>
 
+          <Link
+            href="/quiz"
+            className="text-xs px-2.5 py-1.5 rounded-lg font-semibold text-white hover:opacity-80 transition-opacity whitespace-nowrap"
+            style={{ background: 'rgba(255,255,255,0.15)' }}
+          >
+            Quiz
+          </Link>
+
           {/* My BirdDex / username */}
           {storedUsername ? (
             <div className="flex items-center gap-1">

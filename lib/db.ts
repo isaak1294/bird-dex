@@ -163,6 +163,52 @@ async function migrateToMultiUser() {
   }
 }
 
+// ── Quiz helpers ─────────────────────────────────────────────────────────────
+
+export type BirdBasic = { id: number; name: string; category: string; frequency: number | null };
+
+const RARITY_SQL: Record<string, string> = {
+  common:    'frequency > 10',
+  uncommon:  'frequency > 3 AND frequency <= 10',
+  rare:      'frequency > 1 AND frequency <= 3',
+  epic:      'frequency > 0.1 AND frequency <= 1',
+  legendary: 'frequency IS NOT NULL AND frequency <= 0.1',
+};
+
+export async function getDistinctBirdCategories(): Promise<string[]> {
+  await ensureInit();
+  const res = await client.execute('SELECT DISTINCT category FROM birds ORDER BY category');
+  return res.rows.map(r => String(r.category));
+}
+
+export async function getBirdsByCategory(
+  category: string | null,
+  rarities?: string[]
+): Promise<BirdBasic[]> {
+  await ensureInit();
+  const conditions: string[] = [];
+  const args: (string | number)[] = [];
+
+  if (category) { conditions.push('category = ?'); args.push(category); }
+
+  if (rarities && rarities.length > 0) {
+    const rarityConds = rarities.filter(r => RARITY_SQL[r]).map(r => `(${RARITY_SQL[r]})`);
+    if (rarityConds.length > 0) conditions.push(`(${rarityConds.join(' OR ')})`);
+  }
+
+  const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+  const res = await client.execute({
+    sql: `SELECT id, name, category, frequency FROM birds ${where} ORDER BY name`,
+    args,
+  });
+  return res.rows.map(r => ({
+    id: Number(r.id),
+    name: String(r.name),
+    category: String(r.category),
+    frequency: r.frequency != null ? Number(r.frequency) : null,
+  }));
+}
+
 // ── Types ────────────────────────────────────────────────────────────────────
 
 export type User = {
