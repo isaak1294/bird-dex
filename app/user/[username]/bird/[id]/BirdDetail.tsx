@@ -7,6 +7,26 @@ import type { Bird, Photo } from '@/lib/db';
 
 type Props = { bird: Bird; username: string; region: string; prevId: number | null; nextId: number | null };
 
+// Resize + convert to JPEG before upload — keeps files under ~500KB and handles HEIC on Safari
+async function compressImage(file: File): Promise<Blob> {
+  return new Promise(resolve => {
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      const MAX = 1920;
+      const ratio = Math.min(MAX / img.naturalWidth, MAX / img.naturalHeight, 1);
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(img.naturalWidth * ratio);
+      canvas.height = Math.round(img.naturalHeight * ratio);
+      canvas.getContext('2d')!.drawImage(img, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob(blob => resolve(blob ?? file), 'image/jpeg', 0.85);
+    };
+    img.onerror = () => { URL.revokeObjectURL(objectUrl); resolve(file); };
+    img.src = objectUrl;
+  });
+}
+
 function padId(id: number) {
   return String(id).padStart(3, '0');
 }
@@ -20,6 +40,7 @@ export default function BirdDetail({ bird: initialBird, username, region, prevId
   const [uploading, setUploading] = useState(false);
   const [uploadCount, setUploadCount] = useState(0);
   const [uploadDone, setUploadDone] = useState(0);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const [caption, setCaption] = useState('');
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -75,15 +96,23 @@ export default function BirdDetail({ bird: initialBird, username, region, prevId
     const files = Array.from(e.target.files ?? []);
     if (!files.length) return;
     setUploading(true);
+    setUploadError(null);
     setUploadCount(files.length);
     setUploadDone(0);
     const newPhotos: Photo[] = [];
+    const errors: string[] = [];
     for (const file of files) {
+      const compressed = await compressImage(file);
       const form = new FormData();
-      form.append('photo', file);
+      form.append('photo', compressed, 'photo.jpg');
       form.append('caption', caption);
       const res = await fetch(`${api}/photos`, { method: 'POST', body: form });
-      if (res.ok) newPhotos.push(await res.json());
+      if (res.ok) {
+        newPhotos.push(await res.json());
+      } else {
+        const body = await res.json().catch(() => ({}));
+        errors.push(body.error ?? `Failed (${res.status})`);
+      }
       setUploadDone(d => d + 1);
     }
     if (newPhotos.length > 0) {
@@ -94,6 +123,7 @@ export default function BirdDetail({ bird: initialBird, username, region, prevId
       if (fileRef.current) fileRef.current.value = '';
       startTransition(() => router.refresh());
     }
+    if (errors.length > 0) setUploadError(errors.join('; '));
     setUploading(false);
   }
 
@@ -254,6 +284,9 @@ export default function BirdDetail({ bird: initialBird, username, region, prevId
                 <label htmlFor="photo-upload" className={`flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-medium cursor-pointer transition-all ${uploading ? 'opacity-60 cursor-not-allowed' : 'hover:opacity-80'}`} style={{ background: 'var(--card-border)', color: 'var(--text-muted)' }}>
                   {uploading ? <><Spinner /> {uploadDone}/{uploadCount} uploaded…</> : <><span>📷</span> Choose Photos</>}
                 </label>
+                {uploadError && (
+                  <p className="text-xs text-red-600 mt-1">{uploadError}</p>
+                )}
               </div>
             )}
           </div>

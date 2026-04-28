@@ -57,7 +57,7 @@ function BirdCard({ bird, username }: { bird: Bird; username: string }) {
         }`}>
           {coverPhoto ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={coverPhoto.url} alt={bird.name} className="w-full h-full object-cover" />
+            <img src={coverPhoto.url} alt={bird.name} className="w-full h-full object-cover" loading="lazy" />
           ) : (
             <BirdIcon discovered={discovered} />
           )}

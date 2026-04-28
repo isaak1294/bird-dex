@@ -22,8 +22,15 @@ export async function POST(
   if (!allowed.includes(ext)) return Response.json({ error: 'Invalid file type' }, { status: 400 });
 
   const filename = `users/${user.id}/${birdId}-${Date.now()}.${ext}`;
-  const buffer = Buffer.from(await file.arrayBuffer());
-  const url = await uploadToGCS(filename, buffer, file.type || 'image/jpeg');
+
+  let url: string;
+  try {
+    const buffer = Buffer.from(await file.arrayBuffer());
+    url = await uploadToGCS(filename, buffer, file.type || 'image/jpeg');
+  } catch (err) {
+    console.error('GCS upload failed:', err);
+    return Response.json({ error: 'Upload to storage failed. Try a smaller photo.' }, { status: 502 });
+  }
 
   const photo = await addUserPhoto(user.id, Number(birdId), url, caption);
   return Response.json(photo, { status: 201 });
