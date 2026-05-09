@@ -44,4 +44,4 @@ def rip_target_birds(html_file, output_csv):
 
 if __name__ == "__main__":
     # Ensure 'Target Species - eBird.html' is in your directory
-    rip_target_birds('Target Species - eBird.html', 'bc_common_birds.csv')
+    rip_target_birds('saskTarget Species - eBird.html', 'sask_common_birds.csv')

@@ -9,7 +9,7 @@ export async function POST(
   const user = await getUserByUsername(username);
   if (!user) return Response.json({ error: 'User not found' }, { status: 404 });
 
-  const bird = await getUserBirdById(user.id, Number(birdId));
+  const bird = await getUserBirdById(user.id, Number(birdId), user.region);
   if (!bird) return Response.json({ error: 'Bird not found' }, { status: 404 });
 
   const formData = await req.formData();
@@ -32,6 +32,6 @@ export async function POST(
     return Response.json({ error: 'Upload to storage failed. Try a smaller photo.' }, { status: 502 });
   }
 
-  const photo = await addUserPhoto(user.id, Number(birdId), url, caption);
+  const photo = await addUserPhoto(user.id, Number(birdId), user.region, url, caption);
   return Response.json(photo, { status: 201 });
 }

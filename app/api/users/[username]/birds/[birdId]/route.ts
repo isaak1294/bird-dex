@@ -7,7 +7,7 @@ export async function GET(
   const { username, birdId } = await params;
   const user = await getUserByUsername(username);
   if (!user) return Response.json({ error: 'User not found' }, { status: 404 });
-  const bird = await getUserBirdById(user.id, Number(birdId));
+  const bird = await getUserBirdById(user.id, Number(birdId), user.region);
   if (!bird) return Response.json({ error: 'Not found' }, { status: 404 });
   return Response.json(bird);
 }
@@ -20,7 +20,7 @@ export async function PATCH(
   const user = await getUserByUsername(username);
   if (!user) return Response.json({ error: 'User not found' }, { status: 404 });
   const body = await req.json() as { discovered?: 0 | 1; field_notes?: string; cover_photo_id?: number | null };
-  await updateUserBird(user.id, Number(birdId), body);
-  const bird = await getUserBirdById(user.id, Number(birdId));
+  await updateUserBird(user.id, Number(birdId), user.region, body);
+  const bird = await getUserBirdById(user.id, Number(birdId), user.region);
   return Response.json(bird);
 }

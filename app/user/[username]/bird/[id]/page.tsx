@@ -14,8 +14,8 @@ export default async function UserBirdPage({
   if (!user) notFound();
 
   const [bird, allBirds] = await Promise.all([
-    getUserBirdById(user.id, Number(id)),
-    getAllUserBirds(user.id),
+    getUserBirdById(user.id, Number(id), user.region),
+    getAllUserBirds(user.id, user.region),
   ]);
   if (!bird) notFound();
 
