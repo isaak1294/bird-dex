@@ -50,7 +50,8 @@ export default function BirdDetail({ bird: initialBird, username, region, prevId
   useEffect(() => {
     const stored = localStorage.getItem('birddex_username');
     setIsOwner(stored?.toLowerCase() === username.toLowerCase());
-  }, [username]);
+    if (!stored && username !== 'isaak') router.replace('/user/isaak');
+  }, [username, router]);
 
   const discovered = bird.discovered === 1;
   const photos = bird.photos;

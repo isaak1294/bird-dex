@@ -158,9 +158,11 @@ export default function BirddexClient({ initialBirds, username, region, allUsers
   const [addFriendLoading, setAddFriendLoading] = useState(false);
 
   useEffect(() => {
-    setStoredUsername(localStorage.getItem('birddex_username'));
+    const stored = localStorage.getItem('birddex_username');
+    setStoredUsername(stored);
+    if (!stored && username !== 'isaak') router.replace('/user/isaak');
     if (window.innerWidth < 768) setSidebarOpen(false);
-  }, []);
+  }, [username, router]);
 
   const isOwner = storedUsername?.toLowerCase() === username.toLowerCase();
 
