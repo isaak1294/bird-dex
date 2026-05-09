@@ -350,18 +350,22 @@ export default function BirddexClient({ initialBirds, username, region, allUsers
           <div className="hidden md:block w-2 h-2 rounded-full bg-red-300 opacity-60 shrink-0" />
 
           <h1 className="text-white font-bold text-base md:text-xl tracking-wide flex items-baseline gap-0 min-w-0">
-            {/* Username dropdown */}
+            {/* Username dropdown (only when signed in) */}
             <div className="relative shrink-0">
-              <button
-                onClick={() => setShowUserDropdown(v => !v)}
-                className="flex items-center gap-1 hover:opacity-80 transition-opacity focus:outline-none"
-              >
-                {capitalize(username)}
-                <svg width="10" height="7" viewBox="0 0 10 7" fill="none" className="opacity-70 mb-0.5">
-                  <path d="M1 1l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </button>
-              {showUserDropdown && (
+              {storedUsername ? (
+                <button
+                  onClick={() => setShowUserDropdown(v => !v)}
+                  className="flex items-center gap-1 hover:opacity-80 transition-opacity focus:outline-none"
+                >
+                  {capitalize(username)}
+                  <svg width="10" height="7" viewBox="0 0 10 7" fill="none" className="opacity-70 mb-0.5">
+                    <path d="M1 1l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+              ) : (
+                <span>{capitalize(username)}</span>
+              )}
+              {showUserDropdown && storedUsername && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setShowUserDropdown(false)} />
                   <div className="absolute top-full left-0 mt-2 bg-white rounded-xl shadow-xl py-1 z-50 overflow-hidden" style={{ minWidth: 170 }}>
