@@ -1,4 +1,5 @@
 import { getUserByUsername, getUserBirdById, updateUserBird } from '@/lib/db';
+import { requireOwnership } from '@/lib/auth';
 
 export async function GET(
   _req: Request,
@@ -17,6 +18,9 @@ export async function PATCH(
   { params }: { params: Promise<{ username: string; birdId: string }> }
 ) {
   const { username, birdId } = await params;
+  if (!(await requireOwnership(req, username))) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 });
+  }
   const user = await getUserByUsername(username);
   if (!user) return Response.json({ error: 'User not found' }, { status: 404 });
   const body = await req.json() as { discovered?: 0 | 1; field_notes?: string; cover_photo_id?: number | null };

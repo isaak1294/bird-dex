@@ -1,11 +1,15 @@
 import { getUserByUsername, getUserBirdById, addUserPhoto } from '@/lib/db';
 import { uploadToGCS } from '@/lib/storage';
+import { requireOwnership } from '@/lib/auth';
 
 export async function POST(
   req: Request,
   { params }: { params: Promise<{ username: string; birdId: string }> }
 ) {
   const { username, birdId } = await params;
+  if (!(await requireOwnership(req, username))) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 });
+  }
   const user = await getUserByUsername(username);
   if (!user) return Response.json({ error: 'User not found' }, { status: 404 });
 

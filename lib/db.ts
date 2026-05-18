@@ -407,17 +407,35 @@ export async function getUserByUsername(username: string): Promise<User | null> 
 export async function validateUser(username: string, password: string): Promise<User | null> {
   await ensureInit();
   const res = await client.execute({
-    sql: 'SELECT * FROM users WHERE username = ? COLLATE NOCASE AND password = ?',
-    args: [username, password],
+    sql: 'SELECT * FROM users WHERE username = ? COLLATE NOCASE',
+    args: [username],
   });
-  return res.rows[0] ? rowToUser(res.rows[0]) : null;
+  const row = res.rows[0];
+  if (!row) return null;
+
+  const { verifyPassword, hashPassword } = await import('./auth');
+  const stored = String(row.password);
+  if (!(await verifyPassword(password, stored))) return null;
+
+  // Migrate legacy plaintext password to bcrypt on first successful login
+  if (!stored.startsWith('$2')) {
+    const hash = await hashPassword(password);
+    await client.execute({
+      sql: 'UPDATE users SET password = ? WHERE id = ?',
+      args: [hash, Number(row.id)],
+    });
+  }
+
+  return rowToUser(row);
 }
 
 export async function createUser(username: string, region: string, password: string): Promise<User> {
   await ensureInit();
+  const { hashPassword } = await import('./auth');
+  const hashed = await hashPassword(password);
   const res = await client.execute({
     sql: 'INSERT INTO users (username, region, password) VALUES (?, ?, ?)',
-    args: [username.toLowerCase().trim(), region, password],
+    args: [username.toLowerCase().trim(), region, hashed],
   });
   const newUserId = Number(res.lastInsertRowid);
 

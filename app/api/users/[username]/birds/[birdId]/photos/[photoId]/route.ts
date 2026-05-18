@@ -1,11 +1,15 @@
 import { getUserByUsername, deleteUserPhoto } from '@/lib/db';
 import { deleteFromGCS } from '@/lib/storage';
+import { requireOwnership } from '@/lib/auth';
 
 export async function DELETE(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ username: string; birdId: string; photoId: string }> }
 ) {
   const { username, photoId } = await params;
+  if (!(await requireOwnership(req, username))) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 });
+  }
   const user = await getUserByUsername(username);
   if (!user) return Response.json({ error: 'User not found' }, { status: 404 });
 

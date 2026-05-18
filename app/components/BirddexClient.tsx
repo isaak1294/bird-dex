@@ -29,7 +29,7 @@ function capitalize(s: string) {
 }
 
 const REGIONS: Record<string, { label: string; species: number }> = {
-  BC: { label: 'British Columbia', species: 864 },
+  BC: { label: 'British Columbia', species: 564 },
   SK: { label: 'Saskatchewan', species: 410 },
 };
 
@@ -197,6 +197,7 @@ export default function BirddexClient({ initialBirds, username, region, allUsers
           body: JSON.stringify({ password: pass }),
         });
         if (authRes.ok) {
+          // Cookie is set by the server; we only need localStorage for UI state
           localStorage.setItem('birddex_username', name);
           setStoredUsername(name);
           setShowModal(false);
@@ -240,7 +241,11 @@ export default function BirddexClient({ initialBirds, username, region, allUsers
     setLoginError('');
     setShowModal(true);
   }
-  function signOut() { localStorage.removeItem('birddex_username'); setStoredUsername(null); }
+  async function signOut() {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    localStorage.removeItem('birddex_username');
+    setStoredUsername(null);
+  }
 
   async function openFriendsModal() {
     const res = await fetch(`/api/users/${username}/friends`);

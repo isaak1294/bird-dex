@@ -1,4 +1,5 @@
 import { getUserByUsername, getUserFriends, addFriend } from '@/lib/db';
+import { requireOwnership } from '@/lib/auth';
 
 export async function GET(
   _req: Request,
@@ -16,6 +17,9 @@ export async function POST(
   { params }: { params: Promise<{ username: string }> }
 ) {
   const { username } = await params;
+  if (!(await requireOwnership(req, username))) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 });
+  }
   const { friendUsername } = await req.json() as { friendUsername: string };
   const [user, friend] = await Promise.all([
     getUserByUsername(username),

@@ -1,10 +1,14 @@
 import { getUserByUsername, getUserFriends, removeFriend } from '@/lib/db';
+import { requireOwnership } from '@/lib/auth';
 
 export async function DELETE(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ username: string; friendUsername: string }> }
 ) {
   const { username, friendUsername } = await params;
+  if (!(await requireOwnership(req, username))) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 });
+  }
   const [user, friend] = await Promise.all([
     getUserByUsername(username),
     getUserByUsername(friendUsername),
