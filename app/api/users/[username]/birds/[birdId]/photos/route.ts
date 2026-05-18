@@ -16,7 +16,7 @@ export async function POST(
   const bird = await getUserBirdById(user.id, Number(birdId), user.region);
   if (!bird) return Response.json({ error: 'Bird not found' }, { status: 404 });
 
-  const formData = await req.formData();
+  const formData = await req.formData() as unknown as { get(key: string): FormDataEntryValue | null };
   const file = formData.get('photo') as File | null;
   const caption = (formData.get('caption') as string) ?? '';
   if (!file) return Response.json({ error: 'No file provided' }, { status: 400 });
