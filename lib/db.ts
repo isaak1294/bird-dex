@@ -17,6 +17,7 @@ function ensureInit(): Promise<void> {
       await migrateToMultiUser();
       await migrateToRegions();
       await migrateToFriends();
+      await migrateToDiscoveredAt();
     })();
   }
   return initPromise;
@@ -308,6 +309,15 @@ async function migrateToFriends() {
   }
 }
 
+async function migrateToDiscoveredAt() {
+  try { await client.execute('ALTER TABLE user_birds ADD COLUMN discovered_at TEXT'); } catch { /* exists */ }
+  // Backfill: sightings that predate discovered_at tracking all count toward 2026.
+  // No-op after the first run — every write path stamps discovered_at going forward.
+  await client.execute(
+    "UPDATE user_birds SET discovered_at = CURRENT_TIMESTAMP WHERE discovered = 1 AND (discovered_at IS NULL OR discovered_at < '2026-01-01')"
+  );
+}
+
 // ── Quiz helpers ─────────────────────────────────────────────────────────────
 
 export type BirdBasic = { id: number; name: string; category: string; frequency: number | null };
@@ -368,6 +378,7 @@ export type Bird = {
   name: string;
   category: string;
   discovered: 0 | 1;
+  discovered_at: string | null;
   field_notes: string;
   cover_photo_id: number | null;
   frequency: number | null;
@@ -497,6 +508,7 @@ export async function removeFriend(userId: number, friendId: number): Promise<vo
 const REGION_BIRD_SELECT = `
   SELECT b.id, b.name, b.category, rb.frequency, rb.is_target,
     COALESCE(ub.discovered, 0) as discovered,
+    ub.discovered_at,
     COALESCE(ub.field_notes, '') as field_notes,
     ub.cover_photo_id,
     COALESCE(ub.updated_at, b.updated_at) as updated_at
@@ -548,7 +560,16 @@ export async function updateUserBird(
 
   const fields: string[] = [];
   const args: (string | number | null)[] = [];
-  if (data.discovered !== undefined) { fields.push('discovered = ?'); args.push(data.discovered); }
+  if (data.discovered !== undefined) {
+    fields.push('discovered = ?');
+    args.push(data.discovered);
+    // First sighting stamps discovered_at; un-marking clears it
+    fields.push(
+      data.discovered === 1
+        ? 'discovered_at = COALESCE(discovered_at, CURRENT_TIMESTAMP)'
+        : 'discovered_at = NULL'
+    );
+  }
   if (data.field_notes !== undefined) { fields.push('field_notes = ?'); args.push(data.field_notes); }
   if ('cover_photo_id' in data) { fields.push('cover_photo_id = ?'); args.push(data.cover_photo_id ?? null); }
   if (!fields.length) return;
@@ -578,7 +599,7 @@ export async function addUserPhoto(
     args: [userId, birdId, region],
   });
   await client.execute({
-    sql: 'UPDATE user_birds SET discovered = 1, updated_at = CURRENT_TIMESTAMP WHERE user_id = ? AND bird_id = ? AND region = ?',
+    sql: 'UPDATE user_birds SET discovered = 1, discovered_at = COALESCE(discovered_at, CURRENT_TIMESTAMP), updated_at = CURRENT_TIMESTAMP WHERE user_id = ? AND bird_id = ? AND region = ?',
     args: [userId, birdId, region],
   });
 
@@ -624,6 +645,7 @@ function rowToBird(row: any): Omit<Bird, 'photos'> {
     name: String(row.name),
     category: String(row.category),
     discovered: Number(row.discovered) as 0 | 1,
+    discovered_at: row.discovered_at != null ? String(row.discovered_at) : null,
     field_notes: String(row.field_notes ?? ''),
     cover_photo_id: row.cover_photo_id != null ? Number(row.cover_photo_id) : null,
     frequency: row.frequency != null ? Number(row.frequency) : null,
