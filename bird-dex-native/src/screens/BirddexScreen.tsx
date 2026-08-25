@@ -56,6 +56,7 @@ export default function BirddexScreen({ navigation }: Props) {
   const [activeCategory, setActiveCategory] = useState('All');
   const [discoveredOnly, setDiscoveredOnly] = useState(false);
   const [targetOnly, setTargetOnly] = useState(true);
+  const [listMode, setListMode] = useState<'year' | 'life'>('year');
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -75,10 +76,19 @@ export default function BirddexScreen({ navigation }: Props) {
   const numCols = getNumColumns();
   const cardWidth = getCardWidth(numCols);
 
-  const baseBirds = useMemo(
-    () => (targetOnly ? birds.filter(b => b.is_target === 1) : birds),
-    [birds, targetOnly]
-  );
+  const baseBirds = useMemo(() => {
+    let list = targetOnly ? birds.filter(b => b.is_target === 1) : birds;
+    if (listMode === 'year') {
+      // Year list: only birds first seen this calendar year count as discovered
+      const year = String(new Date().getFullYear());
+      list = list.map(b =>
+        b.discovered === 1 && !(b.discovered_at ?? '').startsWith(year)
+          ? { ...b, discovered: 0 as const }
+          : b
+      );
+    }
+    return list;
+  }, [birds, targetOnly, listMode]);
 
   const categories = useMemo(() => {
     const map = new Map<string, { total: number; discovered: number }>();
@@ -303,6 +313,14 @@ export default function BirddexScreen({ navigation }: Props) {
                 {search ? ` · "${search}"` : ''}
               </Text>
               <View style={S.toggles}>
+                <Pressable
+                  onPress={() => setListMode(m => (m === 'year' ? 'life' : 'year'))}
+                  style={[S.toggle, { borderColor: C.border, backgroundColor: C.surface }, listMode === 'year' && { backgroundColor: C.surfaceAlt, borderColor: C.accent }]}
+                >
+                  <Text style={[S.toggleText, { color: C.textMuted }, listMode === 'year' && { color: C.accent }]}>
+                    {listMode === 'year' ? String(new Date().getFullYear()) : 'Life'}
+                  </Text>
+                </Pressable>
                 <Pressable
                   onPress={() => setDiscoveredOnly(v => !v)}
                   style={[S.toggle, { borderColor: C.border, backgroundColor: C.surface }, discoveredOnly && { backgroundColor: C.successLight, borderColor: C.successBorder }]}

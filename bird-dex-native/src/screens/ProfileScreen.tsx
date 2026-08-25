@@ -42,7 +42,11 @@ export default function ProfileScreen() {
   const [switchingRegion, setSwitchingRegion] = useState(false);
 
   const totalBirds = birds.length;
-  const discovered = birds.filter(b => b.discovered).length;
+  const lifeCount = birds.filter(b => b.discovered).length;
+  const currentYear = String(new Date().getFullYear());
+  const yearCount = birds.filter(
+    b => b.discovered && (b.discovered_at ?? '').startsWith(currentYear)
+  ).length;
 
   // Load the auth user's own friends when signed in
   useEffect(() => {
@@ -146,18 +150,16 @@ export default function ProfileScreen() {
             {/* Stats */}
             <View style={S.statsRow}>
               <View style={S.statCell}>
-                <Text style={S.statNum}>{discovered}</Text>
-                <Text style={S.statLabel}>Spotted</Text>
+                <Text style={S.statNum}>{yearCount}</Text>
+                <Text style={S.statLabel}>This year</Text>
               </View>
               <View style={[S.statCell, S.statCellMid]}>
-                <Text style={S.statNum}>{totalBirds}</Text>
-                <Text style={S.statLabel}>Total birds</Text>
+                <Text style={S.statNum}>{lifeCount}</Text>
+                <Text style={S.statLabel}>Life list</Text>
               </View>
               <View style={S.statCell}>
-                <Text style={S.statNum}>
-                  {totalBirds > 0 ? Math.round((discovered / totalBirds) * 100) : 0}%
-                </Text>
-                <Text style={S.statLabel}>Complete</Text>
+                <Text style={S.statNum}>{totalBirds}</Text>
+                <Text style={S.statLabel}>Total birds</Text>
               </View>
             </View>
 

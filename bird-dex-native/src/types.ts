@@ -18,6 +18,7 @@ export type Bird = {
   name: string;
   category: string;
   discovered: 0 | 1;
+  discovered_at: string | null;
   field_notes: string;
   cover_photo_id: number | null;
   frequency: number | null;
